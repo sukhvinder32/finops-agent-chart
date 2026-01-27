@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finops-agent
+  namespace: finops-agent
+  labels:
+    app: finops-agent
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finops-agent
+  template:
+    metadata:
+      labels:
+        app: finops-agent
+        version: v1
+    spec:
+      serviceAccountName: finops-agent
+      # Uncomment if using private IBM Cloud Registry image
+      # imagePullSecrets:
+      # - name: icr-secret
+      containers:
+      - name: finops-agent
+        image: icr.io/ibm-finops/agent:v1.0.8
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: GCP_PROJECT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: finops-agent-config
+              key: GCP_PROJECT_ID
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/gcp/key.json
+        - name: COLLECTION_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              name: finops-agent-config
+              key: COLLECTION_INTERVAL
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: finops-agent-config
+              key: LOG_LEVEL
+        - name: AGENT_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: finops-agent-config
+              key: AGENT_MODE
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - name: gcp-credentials
+          mountPath: /var/secrets/gcp
+          readOnly: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: gcp-credentials
+        secret:
+          secretName: finops-agent-secrets
+          items:
+          - key: gcp-service-account-key
+            path: key.json
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finops-agent
+  namespace: finops-agent
+  labels:
+    app: finops-agent
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: finops-agent
