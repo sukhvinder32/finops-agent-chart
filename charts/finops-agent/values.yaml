@@ -13,6 +13,21 @@ global:
   # GCP Project
   gcpProjectId: "ci-cd-370014"  # CHANGE: Your GCP project ID
 
+  imagePullSecrets: []
+
+  cspPricingApiKey:
+    apiKey: ""
+    useDefaultApiKey: true
+
+  # -- Global federated storage configuration
+  federatedStorage:
+    # -- Configuration for federated storage. For more details, see: https://www.kubecost.com/docs/installation/federated-etl
+    config: {}
+
+  # -- Update CA trust configuration
+  updateCaTrust:
+    enabled: false
+
 ## FinOps Agent Configuration
 finopsAgent:
   enabled: true
@@ -56,6 +71,12 @@ finopsAgent:
   
   # Affinity
   affinity: {}
+  
+  # Node affinity preset
+  nodeAffinityPreset:
+    type: ""
+    key: ""
+    values: []
   
   # Pod annotations
   podAnnotations: {}
@@ -175,6 +196,21 @@ gcp:
 ## Cloudability Configuration
 cloudability:
   enabled: true
+  secret:
+    create: true
+    existingSecret: ""
+    cloudabilityAccessKey: ""
+    cloudabilitySecretKey: ""
+    cloudabilityEnvId: ""
+  
+  # Path to cloudability secrets
+  pathToCloudabilitySecrets: "/var/secrets/cloudability"
+  
+  # Local working directory
+  localWorkingDir: "/tmp/cloudability"
+  
+  # Upload region
+  uploadRegion: "us"
   
   # Cloudability API endpoint
   apiEndpoint: "https://api.cloudability.com"
@@ -207,66 +243,127 @@ cloudability:
           name: cloudability-secret
           key: api-key
 
+metrics:
+  enabled: false
+
+serviceAccount:
+  create: true
+  name: "finops-agent"
+  annotations: {}
+
+service:
+  enabled: true
+  type: ClusterIP
+  ports:
+    http: 9090
+
+persistence:
+  enabled: false
+
+nodeAffinityPreset:
+  type: ""
+  key: ""
+  values: []
+
+podSecurityContext:
+  enabled: true
+  fsGroup: 1000
+
+containerSecurityContext:
+  enabled: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+
+agent:
+  collectorDataSource:
+    enabled: false
+  exporter:
+    emissionInterval: ""
+  exportIntervals:
+    allocation: ""
+    asset: ""
+    networkInsight: ""
+    heartbeat: ""
+    diagnostics: ""
+
+containerPorts:
+  http: 9090
+
+startupProbe:
+  enabled: false
+
+livenessProbe:
+  enabled: false
+
+readinessProbe:
+  enabled: false
+
+resourcesPreset: "none"
+
 ## RBAC Configuration
 rbac:
   create: true
-  
-  # ClusterRole rules
-  rules:
-    # Core resources
-    - apiGroups: [""]
-      resources:
-        - namespaces
-        - nodes
-        - pods
-        - persistentvolumes
-        - persistentvolumeclaims
-        - services
-        - resourcequotas
-        - replicationcontrollers
-        - limitranges
-        - configmaps
-      verbs: ["get", "list", "watch"]
-    
-    # Apps resources
-    - apiGroups: ["apps"]
-      resources:
-        - deployments
-        - statefulsets
-        - daemonsets
-        - replicasets
-      verbs: ["get", "list", "watch"]
-    
-    # Batch resources
-    - apiGroups: ["batch"]
-      resources:
-        - jobs
-        - cronjobs
-      verbs: ["get", "list", "watch"]
-    
-    # Storage resources
-    - apiGroups: ["storage.k8s.io"]
-      resources:
-        - storageclasses
-      verbs: ["get", "list", "watch"]
-    
-    # Policy resources
-    - apiGroups: ["policy"]
-      resources:
-        - poddisruptionbudgets
-      verbs: ["get", "list", "watch"]
-    
-    # Autoscaling resources
-    - apiGroups: ["autoscaling"]
-      resources:
-        - horizontalpodautoscalers
-      verbs: ["get", "list", "watch"]
-    
-    # Networking resources
-    - apiGroups: ["networking.k8s.io"]
-      resources:
-        - ingresses
-      verbs: ["get", "list", "watch"]
+  clusterRole:
+    create: true
+    # ClusterRole rules
+    rules:
+      # Core resources
+      - apiGroups: [""]
+        resources:
+          - namespaces
+          - nodes
+          - pods
+          - persistentvolumes
+          - persistentvolumeclaims
+          - services
+          - resourcequotas
+          - replicationcontrollers
+          - limitranges
+          - configmaps
+        verbs: ["get", "list", "watch"]
+      
+      # Apps resources
+      - apiGroups: ["apps"]
+        resources:
+          - deployments
+          - statefulsets
+          - daemonsets
+          - replicasets
+        verbs: ["get", "list", "watch"]
+      
+      # Batch resources
+      - apiGroups: ["batch"]
+        resources:
+          - jobs
+          - cronjobs
+        verbs: ["get", "list", "watch"]
+      
+      # Storage resources
+      - apiGroups: ["storage.k8s.io"]
+        resources:
+          - storageclasses
+        verbs: ["get", "list", "watch"]
+      
+      # Policy resources
+      - apiGroups: ["policy"]
+        resources:
+          - poddisruptionbudgets
+        verbs: ["get", "list", "watch"]
+      
+      # Autoscaling resources
+      - apiGroups: ["autoscaling"]
+        resources:
+          - horizontalpodautoscalers
+        verbs: ["get", "list", "watch"]
+      
+      # Networking resources
+      - apiGroups: ["networking.k8s.io"]
+        resources:
+          - ingresses
+        verbs: ["get", "list", "watch"]
 
 ## Namespace Configuration
 namespace:
@@ -359,3 +456,4 @@ extraEnv: []
 
 ## Extra Environment Variables from ConfigMap/Secret
 extraEnvFrom: []
+
