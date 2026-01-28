@@ -8,3 +8,4 @@ data:
   COLLECTION_INTERVAL: "3600"
   LOG_LEVEL: "info"
   AGENT_MODE: "standalone"
+  CLUSTER_NAME: "finops-test-config" 
