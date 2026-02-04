@@ -381,6 +381,23 @@ configMap:
     LOG_LEVEL: "info"
     AGENT_MODE: "standalone"
 
+persistence:
+  enabled: true
+  storageClass: "standard-rwo"  # Options: standard-rwo, premium-rwo, balanced-rwo
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi
+  dataSource: {}
+  existingClaim: ""
+  mountPath: /data
+  annotations: {}
+  finalizers:
+    - kubernetes.io/pvc-protection
+  # Optional: selector for existing PV
+  selector: {}
+  # Optional: subPath
+  subPath: ""
+
 ## Monitoring Configuration (Optional)
 monitoring:
   enabled: false
