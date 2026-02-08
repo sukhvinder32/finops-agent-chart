@@ -199,6 +199,31 @@ agent:
     spotLabel: ""
     spotLabelValue: ""
 
+finopsAgent:
+  kubecost:
+    projectID: ""
+    awsSpotDataBucket: ""
+    awsSpotDataPrefix: ""
+    awsSpotDataRegion: ""
+    customPrices:
+      enabled: false
+      CPU: ""
+      GPU: ""
+      RAM: ""
+      spotCPU: ""
+      spotGPU: ""
+      spotRAM: ""
+      storage: ""
+      internetNetworkEgress: ""
+      regionNetworkEgress: ""
+      zoneNetworkEgress: ""
+    discount: ""
+    negotiatedDiscount: ""
+    gpuLabel: ""
+    gpuLabelValue: ""
+    spotLabel: ""
+    spotLabelValue: "" 
+
 ## @param command Override default container command
 command: []
 ## @param args Override default container args
