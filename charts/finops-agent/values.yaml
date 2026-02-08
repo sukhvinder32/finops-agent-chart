@@ -111,6 +111,18 @@ fullImageName: ""
 ## @param logLevel The log level for the finops agent
 logLevel: "info"
 
+cloudability:
+  enabled: true  # ← Change from false to true
+  secret:
+    create: false  # ← Keep false (using existing secret)
+    existingSecret: "cloudability-secret"  # ← Name of secret you created
+    cloudabilityAccessKey: ""  # ← Keep empty (in secret)
+    cloudabilitySecretKey: ""  # ← Keep empty (in secret)
+    cloudabilityEnvId: ""  # ← Keep empty (in secret)
+  pathToCloudabilitySecrets: "/opt/cloudability"
+  localWorkingDir: /data/cloudability  # ← Use persistent storage
+  uploadRegion: us  # ← Change to 'eu' or 'ap' if needed
+
 # Agent configuration
 ## @param agent.collectorDataSource.enabled Enable the collector data source
 ## @param agent.collectorDataSource.scrapeInterval The scrape interval for the collector data source
