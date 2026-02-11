@@ -13,7 +13,7 @@
 global:
   ## @param clusterId The id of the cluster REQUIRED
   ##
-  clusterId: ""
+  clusterId: "<+pipeline.variables.clusterId>"
   ## @param global.federatedStorage.config The config for the federated storage
   ## @param global.federatedStorage.existingSecret The name of an existing secret to use for the federated storage config. Note, you cannot set both `config` and `existingSecret`.
   ##
