@@ -22,7 +22,7 @@ Return the proper FinOps Agent Core image name
 {{- if .Values.fullImageName -}}
 {{ .Values.fullImageName }}
 {{- else -}}
-{{ include "common.images.image" (dict "imageRoot" .Values.finopsAgent.image "global" .Values.global) }}
+{{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global) }}
 {{- end -}}
 {{- end -}}
 
@@ -30,7 +30,7 @@ Return the proper FinOps Agent Core image name
 Return the proper Docker Image Registry Secret Names
 */}}
 {{- define "finops-agent.imagePullSecrets" -}}
-{{- include "common.images.pullSecrets" (dict "images" (list .Values.finopsAgent.image) "global" .Values.global) -}}
+{{ include "common.images.pullSecrets" (dict "images" (list .Values.image ) "global" .Values.global) }}
 {{- end -}}
 
 {{/*
@@ -89,10 +89,10 @@ define the name of the secret with the federated bucket config
 define the name of the cloudability secret
 */}}
 {{- define "cloudability.secret.name" }}
-{{- if .Values.cloudability.secret.create }}
+{{- if .Values.agent.cloudability.secret.create }}
 {{ .Release.Name }}-cloudability-secrets
-{{- else if .Values.cloudability.secret.existingSecret }}
-{{.Values.cloudability.secret.existingSecret}}
+{{- else if .Values.agent.cloudability.secret.existingSecret }}
+{{.Values.agent.cloudability.secret.existingSecret}}
 {{- else }}
 {{- "" }}
 {{- end }}
@@ -132,7 +132,7 @@ check if the finops agent is configured to send data to the cloudability platfor
 We may want for this to be a failure if the agent cannot send historical data that was collected prior to being correctly configured.
 */}}
 {{- define "finops-agent.configCheck" }}
-{{- if not (or (.Values.global.federatedStorage.existingSecret) (.Values.global.federatedStorage.config) (.Values.cloudability.enabled)) }}
+{{- if not (or (.Values.global.federatedStorage.existingSecret) (.Values.global.federatedStorage.config) (.Values.agent.cloudability.enabled)) }}
 {{ printf "\nCONFIGURATION WARNING: The finops agent requires configuration.\nFor Kubecost, please provide a federated storage config\nFor Cloudability, set agent.cloudability.enabled to true\n" }}
 {{- else }}
 {{ printf "You have successfully installed the IBM FinOps agent!" }}
@@ -170,9 +170,9 @@ Warn if Chart version doesn't match image tag version
 {{- define "finops-agent.versionCheck" }}
 {{- if not .Values.fullImageName }}
   {{- $chartVersion := trimPrefix "v" .Chart.Version }}
-  {{- $imageTag := trimPrefix "v" .Values.finopsAgent.image.tag }}
+  {{- $imageTag := trimPrefix "v" .Values.image.tag }}
   {{- if ne $chartVersion $imageTag }}
-    {{ printf "\nWARNING: Chart version (%s) does not match image tag (%s). For best compatibility, these versions should match. See: https://github.com/kubecost/finops-agent-chart/blob/main/README.md#installing-the-finops-agent\n" .Chart.Version .Values.finopsAgent.image.tag }}
+    {{ printf "\nWARNING: Chart version (%s) does not match image tag (%s). For best compatibility, these versions should match. See: https://github.com/kubecost/finops-agent-chart/blob/main/README.md#installing-the-finops-agent\n" .Chart.Version .Values.image.tag }}
   {{- end }}
 {{- end }}
 {{- end }}

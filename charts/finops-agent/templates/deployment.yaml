@@ -35,7 +35,7 @@ spec:
         {{- if or .Values.global.cspPricingApiKey.apiKey .Values.global.cspPricingApiKey.useDefaultApiKey }}
         checksum/csp-pricing-api-key-secret: {{ include (print .Template.BasePath "/csp-api-key-secret.yaml") . | sha256sum }}
         {{- end }}
-        {{- if .Values.cloudability.enabled }}
+        {{- if .Values.agent.cloudability.enabled }}
         checksum/cloudability-secret: {{ include (print .Template.BasePath "/cloudability-secret.yaml") . | sha256sum }}
         {{- end }}
         {{- if .Values.podAnnotations }}
@@ -112,7 +112,7 @@ spec:
       containers:
         - name: finops-agent
           image: {{ include "finops-agent.image" . }}
-          imagePullPolicy: {{ .Values.finopsAgent.image.pullPolicy | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           {{- if .Values.containerSecurityContext.enabled }}
           securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.containerSecurityContext "context" .) | nindent 12 }}
           {{- end }}
@@ -198,86 +198,86 @@ spec:
               value: {{ .Values.agent.exportIntervals.diagnostics | quote }}
             {{- end }}
 
-            {{- if .Values.cloudability.enabled }}
+            {{- if .Values.agent.cloudability.enabled }}
             - name: CLOUDABILITY_CLUSTER_NAME
               value: {{ (include "finops-agent.clusterId" .) | quote }}
             - name: CLOUDABILITY_EMITTER_ENABLED
               value: "true"
             - name: CLOUDABILITY_SCRATCH_DIR
-              value: {{ .Values.cloudability.localWorkingDir | quote }}
+              value: {{ .Values.agent.cloudability.localWorkingDir | quote }}
             - name: CLOUDABILITY_UPLOAD_REGION
-              value: {{ .Values.cloudability.uploadRegion | quote }}
-            {{- if .Values.cloudability.httpsClientTimeout }}
+              value: {{ .Values.agent.cloudability.uploadRegion | quote }}
+            {{- if .Values.agent.cloudability.httpsClientTimeout }}
             - name: CLOUDABILITY_HTTPS_CLIENT_TIMEOUT
-              value: {{ .Values.cloudability.httpsClientTimeout | quote}}
+              value: {{ .Values.agent.cloudability.httpsClientTimeout | quote}}
             {{- end }}
-            {{- if .Values.cloudability.uploadRetryCount }}
+            {{- if .Values.agent.cloudability.uploadRetryCount }}
             - name: CLOUDABILITY_UPLOAD_RETRY_COUNT
-              value: {{ .Values.cloudability.uploadRetryCount | quote }}
+              value: {{ .Values.agent.cloudability.uploadRetryCount | quote }}
             {{- end }}
-            {{- if .Values.cloudability.outboundProxyInsecure }}
+            {{- if .Values.agent.cloudability.outboundProxyInsecure }}
             - name: CLOUDABILITY_OUTBOUND_PROXY_INSECURE
-              value: {{ .Values.cloudability.outboundProxyInsecure | quote }}
+              value: {{ .Values.agent.cloudability.outboundProxyInsecure | quote }}
             {{- end }}
-            {{- if .Values.cloudability.parseMetricData }}
+            {{- if .Values.agent.cloudability.parseMetricData }}
             - name: CLOUDABILITY_PARSE_METRIC_DATA
-              value: {{ .Values.cloudability.parseMetricData | quote }}
+              value: {{ .Values.agent.cloudability.parseMetricData | quote }}
             {{- end }}
-            {{- if .Values.cloudability.emissionInterval }}
+            {{- if .Values.agent.cloudability.emissionInterval }}
             - name: CLOUDABILITY_EMISSION_INTERVAL
-              value: {{ .Values.cloudability.emissionInterval | quote }}
+              value: {{ .Values.agent.cloudability.emissionInterval | quote }}
             {{- end }}
-            {{- if .Values.cloudability.outboundProxy }}
+            {{- if .Values.agent.cloudability.outboundProxy }}
             - name: CLOUDABILITY_OUTBOUND_PROXY
-              value: {{ .Values.cloudability.outboundProxy | quote }}
+              value: {{ .Values.agent.cloudability.outboundProxy | quote }}
             {{- end }}
-            {{- if .Values.cloudability.outboundProxyAuth }}
+            {{- if .Values.agent.cloudability.outboundProxyAuth }}
             - name: CLOUDABILITY_OUTBOUND_PROXY_AUTH
-              value: {{ .Values.cloudability.outboundProxyAuth | quote }}
+              value: {{ .Values.agent.cloudability.outboundProxyAuth | quote }}
             {{- end }}
-            {{- if .Values.cloudability.useProxyForGettingUploadURLonly }}
+            {{- if .Values.agent.cloudability.useProxyForGettingUploadURLonly }}
             - name: CLOUDABILITY_USE_PROXY_FOR_GETTING_UPLOAD_URL_ONLY
-              value: {{ .Values.cloudability.useProxyForGettingUploadURLonly | quote }}
+              value: {{ .Values.agent.cloudability.useProxyForGettingUploadURLonly | quote }}
             {{- end }}
-            {{- if .Values.cloudability.customS3UploadBucket }}
+            {{- if .Values.agent.cloudability.customS3UploadBucket }}
             - name: CLOUDABILITY_CUSTOM_S3_UPLOAD_BUCKET
-              value: {{ .Values.cloudability.customS3UploadBucket | quote }}
+              value: {{ .Values.agent.cloudability.customS3UploadBucket | quote }}
             {{- end }}
-            {{- if .Values.cloudability.customS3UploadRegion }}
+            {{- if .Values.agent.cloudability.customS3UploadRegion }}
             - name: CLOUDABILITY_CUSTOM_S3_UPLOAD_REGION
-              value: {{ .Values.cloudability.customS3UploadRegion | quote }}
+              value: {{ .Values.agent.cloudability.customS3UploadRegion | quote }}
             {{- end }}
-            {{- if .Values.cloudability.customAzureBlobContainerName }}
+            {{- if .Values.agent.cloudability.customAzureBlobContainerName }}
             - name: CLOUDABILITY_CUSTOM_AZURE_BLOB_CONTAINER_NAME
-              value: {{ .Values.cloudability.customAzureBlobContainerName | quote }}
+              value: {{ .Values.agent.cloudability.customAzureBlobContainerName | quote }}
             {{- end }}
-            {{- if .Values.cloudability.customAzureBlobURL }}
+            {{- if .Values.agent.cloudability.customAzureBlobURL }}
             - name: CLOUDABILITY_CUSTOM_AZURE_BLOB_URL
-              value: {{ .Values.cloudability.customAzureBlobURL | quote }}
+              value: {{ .Values.agent.cloudability.customAzureBlobURL | quote }}
             {{- end }}
-            {{- if .Values.cloudability.customAzureTenantID }}
+            {{- if .Values.agent.cloudability.customAzureTenantID }}
             - name: CLOUDABILITY_CUSTOM_AZURE_BLOB_TENANT_ID
-              value: {{ .Values.cloudability.customAzureTenantID | quote }}
+              value: {{ .Values.agent.cloudability.customAzureTenantID | quote }}
             {{- end }}
-            {{- if .Values.cloudability.customAzureClientID }}
+            {{- if .Values.agent.cloudability.customAzureClientID }}
             - name: CLOUDABILITY_CUSTOM_AZURE_BLOB_CLIENT_ID
-              value: {{ .Values.cloudability.customAzureClientID | quote }}
+              value: {{ .Values.agent.cloudability.customAzureClientID | quote }}
             {{- end }}
-            {{- if .Values.cloudability.keyAccessFile }}
+            {{- if .Values.agent.cloudability.keyAccessFile }}
             - name: CLOUDABILITY_KEY_ACCESS_FILEPATH
-              value: "{{ .Values.cloudability.pathToCloudabilitySecrets -}}/{{ .Values.cloudability.keyAccessFile }}"
+              value: "{{ .Values.agent.cloudability.pathToCloudabilitySecrets -}}/{{ .Values.agent.cloudability.keyAccessFile }}"
             {{- end }}
-            {{- if .Values.cloudability.keySecretFile }}
+            {{- if .Values.agent.cloudability.keySecretFile }}
             - name: CLOUDABILITY_KEY_SECRET_FILEPATH
-              value: "{{ .Values.cloudability.pathToCloudabilitySecrets -}}/{{ .Values.cloudability.keySecretFile }}"
+              value: "{{ .Values.agent.cloudability.pathToCloudabilitySecrets -}}/{{ .Values.agent.cloudability.keySecretFile }}"
             {{- end }}
-            {{- if .Values.cloudability.envIDFile }}
+            {{- if .Values.agent.cloudability.envIDFile }}
             - name: CLOUDABILITY_ENV_ID_FILEPATH
-              value: "{{ .Values.cloudability.pathToCloudabilitySecrets -}}/{{ .Values.cloudability.envIDFile }}"
+              value: "{{ .Values.agent.cloudability.pathToCloudabilitySecrets -}}/{{ .Values.agent.cloudability.envIDFile }}"
             {{- end }}
-            {{- if .Values.cloudability.customAzureBlobClientSecretFile }}
+            {{- if .Values.agent.cloudability.customAzureBlobClientSecretFile }}
             - name: CLOUDABILITY_CUSTOM_AZURE_BLOB_CLIENT_SECRET_FILEPATH
-              value: "{{ .Values.cloudability.pathToCloudabilitySecrets -}}/{{ .Values.cloudability.customAzureBlobClientSecretFile }}"
+              value: "{{ .Values.agent.cloudability.pathToCloudabilitySecrets -}}/{{ .Values.agent.cloudability.customAzureBlobClientSecretFile }}"
             {{- end }}
             {{- else }}
             - name: CLOUDABILITY_EMITTER_ENABLED
@@ -367,9 +367,9 @@ spec:
               subPath: {{ include "finops-agent.federatedStorageFileName" . | trim }}
               readOnly: true
             {{- end }}
-            {{- if and .Values.cloudability.enabled (include "cloudability.secret.name" .) (ne (include "cloudability.secret.name" . | trim) "") }}
+            {{- if and .Values.agent.cloudability.enabled (include "cloudability.secret.name" .) (ne (include "cloudability.secret.name" . | trim) "") }}
             - name: cloudability-secret-store
-              mountPath: {{ .Values.cloudability.pathToCloudabilitySecrets}}
+              mountPath: {{ .Values.agent.cloudability.pathToCloudabilitySecrets}}
             {{- end }}
             {{- if ne (include "finops-agent.cspPricingApiKeySecretName" .) "disabled" }}
             - name: csp-pricing-api-key-secret
