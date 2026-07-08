@@ -1,0 +1,478 @@
+---
+# Source: finops-agent/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: finops-agent
+  namespace: "finops-agent-acm"
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: rbac
+automountServiceAccountToken: true
+---
+# Source: finops-agent/templates/csp-api-key-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: finops-agent-csp-pricing-api-key-secret
+  namespace: "finops-agent-acm"
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: config
+type: Opaque
+data:
+  CSP_PRICING_API_KEY: "QUl6YVN5RFhRUEdfTUhVRXk5bmVSN3N0b2xxNmwwdWpYbWpKbHZr"
+---
+# Source: finops-agent/templates/federated-storage-config-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: finops-agent-federated-storage-config
+  namespace: "finops-agent-acm"
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: config
+type: Opaque
+data:
+  federated-store.yaml: "dHlwZTogY2x1c3Rlcgpjb25maWc6CiAgaG9zdDoga3ViZWNvc3QtbG9jYWwtc3RvcmUuZmlub3BzLWFnZW50LWFjbQogIHBvcnQ6IDkwMDYKICBodHRwX2NvbmZpZzoKICAgIHRsc19jb25maWc6CiAgICAgIGluc2VjdXJlX3NraXBfdmVyaWZ5OiB0cnVl"
+---
+# Source: finops-agent/templates/metrics-configs-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: finops-agent-metrics-config
+  namespace: "finops-agent-acm"
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: config
+type: Opaque
+data:
+  metrics.json: eyJkaXNhYmxlZE1ldHJpY3MiOltdfQ==
+---
+# Source: finops-agent/templates/kubecost-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pricing-configs
+  namespace: "finops-agent-acm"
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: config
+data:
+---
+# Source: finops-agent/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: finops-agent-cluster-role
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: rbac
+  annotations:
+    {}
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "nodes", "pods", "services", "persistentvolumeclaims", "persistentvolumes", "replicationcontrollers", "nodes/metrics", "nodes/stats", "nodes/proxy", "resourcequotas"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["daemonsets", "deployments", "replicasets", "statefulsets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+---
+# Source: finops-agent/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: finops-agent-cluster-rolebinding
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: rbac
+  annotations:
+    {}
+roleRef:
+    kind: ClusterRole
+    name: finops-agent-cluster-role
+    apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: finops-agent
+    namespace: finops-agent-acm
+---
+# Source: finops-agent/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: finops-agent-role
+  namespace: "finops-agent-acm"
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: rbac
+  annotations:
+    {}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps"]
+    verbs: ["get", "list", "watch"]
+---
+# Source: finops-agent/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: finops-agent-rolebinding
+  namespace: "finops-agent-acm"
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: rbac
+  annotations:
+    {}
+roleRef:
+  kind: Role
+  name: finops-agent-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: finops-agent
+    namespace: finops-agent-acm
+---
+# Source: finops-agent/templates/extra-manifests.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubecost-local-store
+  namespace: finops-agent-acm
+spec:
+  ports:
+  - name: tcp-api
+    port: 9006
+    targetPort: 9006
+  selector:
+    app: kubecost-local-store
+---
+# Source: finops-agent/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: finops-agent
+  namespace: "finops-agent-acm"
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: service
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: agent
+---
+# Source: finops-agent/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finops-agent
+  namespace: "finops-agent-acm"
+  labels:
+    app.kubernetes.io/instance: finops-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: finops-agent
+    app.kubernetes.io/version: v1.0.8
+    helm.sh/chart: finops-agent-1.0.8
+    app.kubernetes.io/part-of: finops-agent
+    app.kubernetes.io/component: agent
+spec:
+  # the finops agent does not support replicas
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: finops-agent
+      app.kubernetes.io/name: finops-agent
+      app.kubernetes.io/part-of: finops-agent
+      app.kubernetes.io/component: agent
+  template:
+    metadata:
+      annotations:
+        checksum/federated-storage-config-secret: 0bab2804351a2ce8ccf8648894068d374b5c010f15e8b51fc4a3c1302163c67d
+        checksum/csp-pricing-api-key-secret: 6d8a4e75e2144a5ac187f66886a5be77651cf3d48981f85da296eaeb27b2ad59
+        checksum/metrics-config-secret: d57048085a0d362c0068f087753187bab13564a86b11a774dd99785b51c61885
+      labels:
+        app.kubernetes.io/instance: finops-agent
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: finops-agent
+        app.kubernetes.io/version: v1.0.8
+        helm.sh/chart: finops-agent-1.0.8
+        app.kubernetes.io/part-of: finops-agent
+        app.kubernetes.io/component: agent
+    spec:
+      
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: finops-agent
+                    app.kubernetes.io/name: finops-agent
+                    app.kubernetes.io/component: finops-agent
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      priorityClassName: ""
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      serviceAccountName: finops-agent
+      containers:
+        - name: finops-agent
+          image: icr.io/ibm-finops/agent:v1.0.8
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: APP_NAME
+              value: finops-agent
+            - name: INSTALL_NAMESPACE
+              value: finops-agent-acm
+            - name: COLLECTOR_DATA_SOURCE_ENABLED
+              value: "true"
+            - name: COLLECTOR_SCRAPE_INTERVAL
+              value: "30s"
+            - name: NETWORK_PORT
+              value: "3001"
+            - name: COLLECTOR_RESOLUTION_10M_RETENTION
+              value: "6"
+            - name: MINUTE_METRICS_ENABLED
+              value: "true"
+            - name: COLLECTOR_RESOLUTION_1H_RETENTION
+              value: "3"
+            - name: COLLECTOR_RESOLUTION_1D_RETENTION
+              value: "2"
+
+            - name: CLUSTER_ID
+              value: "finops-agent-acm"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: CLOUD_PROVIDER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: finops-agent-csp-pricing-api-key-secret
+                  key: CSP_PRICING_API_KEY
+            - name: EXPORTER_EMISSION_INTERVAL
+              value: "1m"
+            - name: ALLOCATION_EXPORT_INTERVAL
+              value: "10m"
+            - name: ASSET_EXPORT_INTERVAL
+              value: "10m"
+            - name: NETWORK_INSIGHT_EXPORT_INTERVAL
+              value: "10m"
+            - name: HEARTBEAT_EXPORT_INTERVAL
+              value: "5m"
+            - name: DIAGNOSTICS_EXPORT_INTERVAL
+              value: "10m"
+            - name: CLOUDABILITY_EMITTER_ENABLED
+              value: "false"
+            - name: KUBECOST_EMITTER_ENABLED
+              value: "true"
+            - name: OPENCOST_SOURCE_ENABLED
+              value: "true"
+          ports:
+            - name: http
+              containerPort: 9003
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            httpGet:
+              path: /healthz
+              port: http
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            httpGet:
+              path: /healthz
+              port: http
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: empty-dir
+              mountPath: /var/configs
+              subPath: configs-dir
+            - name: federated-storage-config
+              mountPath: /var/configs/federated-store.yaml
+              subPath: federated-store.yaml
+              readOnly: true
+            - name: csp-pricing-api-key-secret
+              mountPath: /opt/gcp
+              readOnly: true
+            - name: metrics-config
+              mountPath: /var/configs/metrics.json
+              subPath: metrics.json
+              readOnly: true
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: var-configs-empty-dir
+          emptyDir: {}
+        - name: federated-storage-config
+          secret:
+            defaultMode: 420
+            secretName: finops-agent-federated-storage-config
+        - name: cloudability-secret-store
+          secret:
+            secretName: finops-agent-cloudability-secrets
+            defaultMode: 256
+        - name: csp-pricing-api-key-secret
+          secret:
+            secretName: finops-agent-csp-pricing-api-key-secret
+            defaultMode: 256
+        - name: metrics-config
+          secret:
+            defaultMode: 420
+            secretName: finops-agent-metrics-config
+---
+# Source: finops-agent/templates/extra-manifests.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kubecost-local-store
+  name: kubecost-local-store
+  namespace: finops-agent-acm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubecost-local-store
+  template:
+    metadata:
+      labels:
+        app: kubecost-local-store
+    spec:
+      containers:
+      - args:
+        - cluster-storage
+        env:
+        - name: CONFIG_PATH
+          value: /var/configs/
+        - name: RESOLUTION_10M_RETENTION
+          value: "1"
+        - name: RESOLUTION_1H_RETENTION
+          value: "1"
+        - name: RESOLUTION_1D_RETENTION
+          value: "1"
+        image: gcr.io/kubecost1/cost-model-nightly:latest
+        name: local-object-store
+        ports:
+        - containerPort: 9006
+          name: tcp-api
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 9006
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - mountPath: /var/configs
+          name: file-storage
+      volumes:
+      - emptyDir: {}
+        name: file-storage

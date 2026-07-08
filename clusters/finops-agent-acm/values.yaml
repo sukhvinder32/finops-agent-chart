@@ -1,0 +1,77 @@
+global:
+  clusterId: finops-agent-acm
+  federatedStorage:
+    config: |-
+      type: cluster
+      config:
+        host: kubecost-local-store.finops-agent-acm
+        port: 9006
+        http_config:
+          tls_config:
+            insecure_skip_verify: true
+
+persistence:
+  enabled: false
+
+agent:
+  cloudability:
+    enabled: false
+
+extraObjects:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: kubecost-local-store
+    namespace: finops-agent-acm
+    labels:
+      app: kubecost-local-store
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: kubecost-local-store
+    template:
+      metadata:
+        labels:
+          app: kubecost-local-store
+      spec:
+        containers:
+        - name: local-object-store
+          image: gcr.io/kubecost1/cost-model-nightly:latest
+          args: ["cluster-storage"]
+          env:
+          - name: CONFIG_PATH
+            value: /var/configs/
+          - name: RESOLUTION_10M_RETENTION
+            value: "1"
+          - name: RESOLUTION_1H_RETENTION
+            value: "1"
+          - name: RESOLUTION_1D_RETENTION
+            value: "1"
+          ports:
+          - containerPort: 9006
+            name: tcp-api
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9006
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+          - mountPath: /var/configs
+            name: file-storage
+        volumes:
+        - name: file-storage
+          emptyDir: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: kubecost-local-store
+    namespace: finops-agent-acm
+  spec:
+    selector:
+      app: kubecost-local-store
+    ports:
+    - port: 9006
+      targetPort: 9006
+      name: tcp-api
